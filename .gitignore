@@ -1,0 +1,9 @@
+pre-trained models/*
+dataset/*
+*.pyc
+.idea/
+checkpoints/*
+results/*
+.DS_Store
+.vscode/
+BirdsDataset/
