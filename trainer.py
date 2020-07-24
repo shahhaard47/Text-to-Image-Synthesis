@@ -16,14 +16,15 @@ class Trainer(object):
         with open('config.yaml', 'r') as f:
             config = yaml.load(f)
 
-        # self.generator = torch.nn.DataParallel(gan_factory.generator_factory(type).cuda())
-        self.generator = gan_factory.generator_factory(type).cuda()
-        # self.discriminator = torch.nn.DataParallel(gan_factory.discriminator_factory(type).cuda())
-
-        # if pre_trained_disc:
-        #     self.discriminator.load_state_dict(torch.load(pre_trained_disc))
-        # else:
-        #     self.discriminator.apply(Utils.weights_init)
+        if type == 'naive':
+            self.generator = gan_factory.generator_factory(type).cuda()
+        else:
+            self.generator = torch.nn.DataParallel(gan_factory.generator_factory(type).cuda())
+            self.discriminator = torch.nn.DataParallel(gan_factory.discriminator_factory(type).cuda())
+            if pre_trained_disc:
+                self.discriminator.load_state_dict(torch.load(pre_trained_disc))
+            else:
+                self.discriminator.apply(Utils.weights_init)
 
         if pre_trained_gen:
             self.generator.load_state_dict(torch.load(pre_trained_gen))
@@ -49,7 +50,8 @@ class Trainer(object):
 
         self.data_loader = DataLoader(self.dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
 
-        # self.optimD = torch.optim.Adam(self.discriminator.parameters(), lr=self.lr, betas=(self.beta1, 0.999))
+        if type != 'naive':
+            self.optimD = torch.optim.Adam(self.discriminator.parameters(), lr=self.lr, betas=(self.beta1, 0.999))
         self.optimG = torch.optim.Adam(self.generator.parameters(), lr=self.lr, betas=(self.beta1, 0.999))
 
         self.logger = Logger(vis_screen)
@@ -197,7 +199,7 @@ class Trainer(object):
                         epoch, 0, g_loss, 0, 0)
                     self.logger.draw(right_images, fake_images)
 
-            self.logger.plot_epoch(epoch)
+            self.logger.plot_epoch_naive(epoch)
             if (epoch+1) % 50 == 0:
                 Utils.save_naive_checkpoint(self.generator, self.save_path, self.checkpoints_path, epoch)
         Utils.save_naive_checkpoint(self.generator, self.save_path, self.checkpoints_path, epoch)
@@ -214,13 +216,6 @@ class Trainer(object):
                 right_images = sample['right_images']
                 right_embed = sample['right_embed']
                 wrong_images = sample['wrong_images']
-
-                print(sample['txt'])
-                print(right_images.shape)
-                print(right_embed.shape)
-                print(wrong_images.shape)
-
-                assert False, "DIEEE"
 
                 right_images = Variable(right_images.float()).cuda()
                 right_embed = Variable(right_embed.float()).cuda()

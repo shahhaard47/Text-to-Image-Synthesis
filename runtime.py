@@ -4,7 +4,7 @@ from PIL import Image
 import os
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--type", default='naive')
+parser.add_argument("--type", default='gan')
 parser.add_argument("--lr", default=0.0002, type=float)
 parser.add_argument("--l1_coef", default=50, type=float)
 parser.add_argument("--l2_coef", default=100, type=float)
@@ -38,7 +38,7 @@ trainer = Trainer(type=args.type,
                   epochs=args.epochs
                   )
 
-# _ = input("Waitttttt")
+_ = input("Waitttttt")
 
 if not args.inference:
     trainer.train(args.cls)

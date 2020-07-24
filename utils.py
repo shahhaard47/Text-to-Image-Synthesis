@@ -96,7 +96,7 @@ class Utils(object):
         if not os.path.exists(path):
             os.makedirs(path)
         torch.save(netG.state_dict(), '{0}/gen_{1}.pth'.format(path, epoch))
-        
+
 
     @staticmethod
     def weights_init(m):
@@ -137,9 +137,12 @@ class Logger(object):
         # print(g_loss.data.cpu().mean())
         self.hist_G.append(g_loss.data.cpu().mean())
 
+    def plot_epoch_naive(self, epoch):
+        self.viz.plot('Generator', 'train', epoch, np.array(self.hist_G).mean())
+        self.hist_G = []
 
     def plot_epoch(self, epoch):
-        # self.viz.plot('Discriminator', 'train', epoch, np.array(self.hist_D).mean())
+        self.viz.plot('Discriminator', 'train', epoch, np.array(self.hist_D).mean())
         self.viz.plot('Generator', 'train', epoch, np.array(self.hist_G).mean())
         self.hist_D = []
         self.hist_G = []

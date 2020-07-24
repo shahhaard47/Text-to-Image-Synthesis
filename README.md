@@ -2,11 +2,65 @@
 
 ## Haard's notes
 
-For visdom on remote server, add following to `~/.ssh/config` (on local)
+### CV / NLP lit review
+
+[Literature Review Doc](https://docs.google.com/document/d/1_SjmnQ7Fq7ZpDhTWY4iuUwRFNLT0LmQZtLzJgUalDPM/edit?usp=sharing)
+
+Papers for
+- CycleGAN for Text <--> Image
+- CycleGAN for Images
+- Image Captioning
+- Attention
+
+Text to image papers:
+- [Image generation](https://github.com/watsonyanghx/Image-Text-Papers#image-generation-text----image)
+- [Another collection](https://github.com/lzhbrian/arbitrary-text-to-image-papers#general-text-to-image)
+
+### Training notes
+
+- trained naive for 200 epochs (default params)
+- then again for 400 epochs (with 1024 batch size)
+```
+python runtime.py --type naive --vis_screen naive --pre_trained_gen checkpoints/naive_gen_199.pth --batch_size 1024 --epochs 400
+```
+- trained regular "gan" for 200 epochs
+
+### Data
+
+- Download .hd5 files for birds or flowers dataset or convert yourself from original (as mentioned in [Datasets](#datasets) section)
+- Also download text embeddings for [birds](https://drive.google.com/open?id=0B0ywwgffWnLLU0F3UHA3NzFTNEE) or [flowers](https://drive.google.com/open?id=0B0ywwgffWnLLZUt0UmQ1LU1oWlU) captions.
+
+### Understanding inputs for the text-to-image models
+
+> Checkout [understanding_inputs.pdf](understanding_inputs.pdf) or the notebook for images, captions, and embeddings shape and sample information.
+
+Created this to understand how `txt2image_dataset.py` works.
+
+### Implementation changes for Naive generator
+
+> I just wanted to observe what kind of pictures a bunch of deconv layers stacked together could produce
+
+- for any text-to-image work with code in this repo, use older versions I've put together in the `requirements.txt` file to install dependencies. Or prepare to port pytorch and visdom code, as well as train new text embeddings.
+
+I used L1 loss to measure error between generated images (*fake images*) and real images. Following are highlights of changes I made to the code to do this:
+- In `models/gan_factory.py`, simply added another conditional for `type=='naive'`. This returns the same Generator model as if you used type=='gan'.
+- In `utils.py`, added a few duplicate functions for logging and saving checkpoint for a model without any discriminator loss values and weights.
+- In `trainer.py`, modified `__init__` to not initialize a discriminator; added a `_train_naive` function to train a generator only model (adapted from current `_train_gan` but without a discriminator and a simple L1Loss); and added a conditional in `train()` to train the naive model.
+
+
+### Visdom notes
+
+- Need to run visdom server
+```bash
+python -m visdom.server
+```
+
+Add to following to local `~/.ssh/config` to forward port from visdom server
 ```bash
 LocalForward 127.0.0.1:8097 127.0.0.1:8097
 ```
-*make sure to open new terminal and reconnect to server*
+Visdom's default port 8097
+*make sure to restart terminal for changes to take effect*
 
 
 ## Intoduction
