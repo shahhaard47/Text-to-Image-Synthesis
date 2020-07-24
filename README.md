@@ -73,7 +73,7 @@ Where,
 
 NOTE: all images are conditioned on the input text (captions) for the corrsponding images.
 
-> for more details about loss functions for GAN or WGAN look at the [linked paper](https://arxiv.org/abs/1605.05396) or the `_train_*()` functions in `trainer.py`. 
+> for more details about loss functions for GAN or [WGAN](https://arxiv.org/abs/1701.07875) look at the [linked paper](https://arxiv.org/abs/1605.05396) or the `_train_*()` functions in `trainer.py`. 
 
 ### Visdom notes
 
