@@ -91,6 +91,14 @@ class Utils(object):
         torch.save(netG.state_dict(), '{0}/gen_{1}.pth'.format(path, epoch))
 
     @staticmethod
+    def save_naive_checkpoint(netG, dir_path, subdir_path, epoch):
+        path = os.path.join(dir_path, subdir_path)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        torch.save(netG.state_dict(), '{0}/gen_{1}.pth'.format(path, epoch))
+        
+
+    @staticmethod
     def weights_init(m):
         classname = m.__class__.__name__
         if classname.find('Conv') != -1:
@@ -123,8 +131,15 @@ class Logger(object):
         self.hist_Dx.append(real_score.data.cpu().mean())
         self.hist_DGx.append(fake_score.data.cpu().mean())
 
+    def log_iteration_naive(self, epoch, d_loss, g_loss, real_score, fake_score):
+        
+        print("Epoch: %d, g_loss= %f" % (epoch, g_loss.data.cpu().mean()))
+        # print(g_loss.data.cpu().mean())
+        self.hist_G.append(g_loss.data.cpu().mean())
+
+
     def plot_epoch(self, epoch):
-        self.viz.plot('Discriminator', 'train', epoch, np.array(self.hist_D).mean())
+        # self.viz.plot('Discriminator', 'train', epoch, np.array(self.hist_D).mean())
         self.viz.plot('Generator', 'train', epoch, np.array(self.hist_G).mean())
         self.hist_D = []
         self.hist_G = []

@@ -1,8 +1,9 @@
+# with python=3.5 
 h5py
 numpy
 Pillow
 PyYAML
-visdom
+visdom==0.1.7
 # to switch to latest torch: https://github.com/pytorch/pytorch/issues/15307#issuecomment-455679447 (convert lua model to pytorch model using PyTorch 0.4.1 first and then use latest version) 
 torch==0.4.1
 torchfile==0.1.0

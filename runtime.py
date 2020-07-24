@@ -15,7 +15,7 @@ parser.add_argument("--save_path", default='')
 parser.add_argument("--inference", default=False, action='store_true')
 parser.add_argument('--pre_trained_disc', default=None)
 parser.add_argument('--pre_trained_gen', default=None)
-parser.add_argument('--dataset', default='flowers')
+parser.add_argument('--dataset', default='birds')
 parser.add_argument('--split', default=0, type=int)
 parser.add_argument('--batch_size', default=64, type=int)
 parser.add_argument('--num_workers', default=8, type=int)
@@ -38,8 +38,10 @@ trainer = Trainer(type=args.type,
                   epochs=args.epochs
                   )
 
-# if not args.inference:
-#     trainer.train(args.cls)
-# else:
-#     trainer.predict()
+# _ = input("Waitttttt")
+
+if not args.inference:
+    trainer.train(args.cls)
+else:
+    trainer.predict()
 

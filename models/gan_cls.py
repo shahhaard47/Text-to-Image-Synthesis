@@ -47,7 +47,10 @@ class generator(nn.Module):
 
 
 	def forward(self, embed_vector, z):
-
+		"""
+		embed_vector : text embedding vec of input caption (1024 dim)
+		z : noise vector (of dim self.noise_dim)
+		"""
 		projected_embed = self.projection(embed_vector).unsqueeze(2).unsqueeze(3)
 		latent_vector = torch.cat([projected_embed, z], 1)
 		output = self.netG(latent_vector)

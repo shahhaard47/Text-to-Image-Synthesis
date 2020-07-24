@@ -176,6 +176,8 @@ class Trainer(object):
                 iteration += 1
                 right_images = sample['right_images']
                 right_embed = sample['right_embed']
+                right_images = Variable(right_images.float()).cuda()
+                right_embed = Variable(right_embed.float()).cuda()
 
                 # Train the generator
                 self.generator.zero_grad()
@@ -188,12 +190,17 @@ class Trainer(object):
                 g_loss.backward()
                 self.optimG.step()
 
-                if iteration % 5 == 0:
-                    self.logger.log_iteration_gan(
+                # print(g_loss)
+
+                if iteration % 10 == 0:
+                    self.logger.log_iteration_naive(
                         epoch, 0, g_loss, 0, 0)
                     self.logger.draw(right_images, fake_images)
 
-            self.logger.plot_epoch_w_scores(epoch)
+            self.logger.plot_epoch(epoch)
+            if (epoch+1) % 50 == 0:
+                Utils.save_naive_checkpoint(self.generator, self.save_path, self.checkpoints_path, epoch)
+        Utils.save_naive_checkpoint(self.generator, self.save_path, self.checkpoints_path, epoch)
 
     def _train_gan(self, cls):
         criterion = nn.BCELoss()
