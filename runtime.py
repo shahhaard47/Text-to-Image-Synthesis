@@ -22,6 +22,11 @@ parser.add_argument('--num_workers', default=8, type=int)
 parser.add_argument('--epochs', default=200, type=int)
 args = parser.parse_args()
 
+print(args)
+
+_ = input("Waitttttt")
+
+
 trainer = Trainer(type=args.type,
                   dataset=args.dataset,
                   split=args.split,
@@ -38,7 +43,6 @@ trainer = Trainer(type=args.type,
                   epochs=args.epochs
                   )
 
-_ = input("Waitttttt")
 
 if not args.inference:
     trainer.train(args.cls)

@@ -201,8 +201,8 @@ class Trainer(object):
 
             self.logger.plot_epoch_naive(epoch)
             if (epoch+1) % 50 == 0:
-                Utils.save_naive_checkpoint(self.generator, self.save_path, self.checkpoints_path, epoch)
-        Utils.save_naive_checkpoint(self.generator, self.save_path, self.checkpoints_path, epoch)
+                Utils.save_naive_checkpoint(self.generator, self.checkpoints_path, self.save_path, epoch)
+        Utils.save_naive_checkpoint(self.generator, self.checkpoints_path, self.save_path, epoch)
 
     def _train_gan(self, cls):
         criterion = nn.BCELoss()
@@ -292,8 +292,8 @@ class Trainer(object):
 
             self.logger.plot_epoch_w_scores(epoch)
 
-            if (epoch) % 10 == 0:
-                Utils.save_checkpoint(self.discriminator, self.generator, self.checkpoints_path, self.save_path, epoch)
+            if (epoch+1) % 20 == 0:
+                Utils.save_checkpoint(self.discriminator, self.generator, self.checkpoints_path, self.save_path, epoch+1)
 
     def _train_vanilla_wgan(self):
         one = Variable(torch.FloatTensor([1])).cuda()
@@ -455,7 +455,10 @@ class Trainer(object):
                 Utils.save_checkpoint(self.discriminator, self.generator, self.checkpoints_path, epoch)
 
     def predict(self):
+        count = 0
         for sample in self.data_loader:
+            count += 1
+            # if count > 2: break
             right_images = sample['right_images']
             right_embed = sample['right_embed']
             txt = sample['txt']
@@ -467,16 +470,27 @@ class Trainer(object):
             right_embed = Variable(right_embed.float()).cuda()
 
             # Train the generator
+            # right_images.size(0) : batch_size
             noise = Variable(torch.randn(right_images.size(0), 100)).cuda()
             noise = noise.view(noise.size(0), 100, 1, 1)
+
             fake_images = self.generator(right_embed, noise)
 
             self.logger.draw(right_images, fake_images)
 
-            for image, t in zip(fake_images, txt):
+            for image, t, right_image in zip(fake_images, txt, right_images):
                 im = Image.fromarray(image.data.mul_(127.5).add_(127.5).byte().permute(1, 2, 0).cpu().numpy())
-                im.save('results/{0}/{1}.jpg'.format(self.save_path, t.replace("/", "")[:100]))
+                rim = Image.fromarray(right_image.data.mul_(127.5).add_(127.5).byte().permute(1, 2, 0).cpu().numpy())
+
+                try:
+                    im.save('results/{0}/{1}_fake.jpg'.format(self.save_path, t.replace("/", "")[:100]))
+                    rim.save('results/{0}/{1}_real.jpg'.format(self.save_path, t.replace("/", "")[:100]))
+                except:
+                    t = t.encode('latin-1', 'ignore')
+                    im.save('results/{0}/{1}_fake.jpg'.format(self.save_path, t.replace("/", "")[:100]))
+                    rim.save('results/{0}/{1}_real.jpg'.format(self.save_path, t.replace("/", "")[:100]))
                 print(t)
+            # _ = input("ENTER")
 
 
 

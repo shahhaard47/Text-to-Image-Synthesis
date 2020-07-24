@@ -2,6 +2,8 @@
 
 ## Haard's notes
 
+Link to forked repository [https://github.com/shahhaard47/Text-to-Image-Synthesis.git](https://github.com/shahhaard47/Text-to-Image-Synthesis.git)
+
 ### CV / NLP lit review
 
 [Literature Review Doc](https://docs.google.com/document/d/1_SjmnQ7Fq7ZpDhTWY4iuUwRFNLT0LmQZtLzJgUalDPM/edit?usp=sharing)
@@ -47,6 +49,31 @@ I used L1 loss to measure error between generated images (*fake images*) and rea
 - In `utils.py`, added a few duplicate functions for logging and saving checkpoint for a model without any discriminator loss values and weights.
 - In `trainer.py`, modified `__init__` to not initialize a discriminator; added a `_train_naive` function to train a generator only model (adapted from current `_train_gan` but without a discriminator and a simple L1Loss); and added a conditional in `train()` to train the naive model.
 
+### Loss functions 
+
+For the **naive generator** (GAN without a discriminator), I used L1 loss because it was suggested [here](https://deepai.org/machine-learning-glossary-and-terms/per-pixel-loss-function)
+
+For **GAN** (unmodified) following are the loss functions implemented:
+
+For the discriminator, Binary Cross Entropy loss (`torch.nn.BCELoss`) is used.
+- total discriminator loss, `d_loss` = `real_loss` + `fake_loss`, where
+    - `real_loss` : predicting that real images are real
+    - `fake_loss` : predicting that fake images (those produced by generator) are fake
+
+For the generator, BCE, L1 (`torch.nn.L1Loss`) and L2 (`torch.nn.MSELoss`) losses are used. Here's how each loss is used to form overall generator loss (`g_loss`):
+```python
+g_loss = criterion(outputs, real_labels) \ # how well the generated images fooled the discriminator
++ self.l2_coef * l2_loss(activation_fake, activation_real.detach()) \ # how different the generated images se
++ self.l1_coef * l1_loss(fake_images, right_images)
+```
+Where,
+1. measures how well the fake images (produced by generator) fooled the discriminator
+2. measures difference in how fake images and real images are perceived by discriminator
+3. measures how different fake images actually look from real images
+
+NOTE: all images are conditioned on the input text (captions) for the corrsponding images.
+
+> for more details about loss functions for GAN or WGAN look at the [linked paper](https://arxiv.org/abs/1605.05396) or the `_train_*()` functions in `trainer.py`. 
 
 ### Visdom notes
 
@@ -79,6 +106,9 @@ Image credits [1]
 - numpy
 
 This implementation currently only support running with GPUs.
+
+You can use `pip install -r requirements.txt` to minimize the time required to get code in this repository running.
+
 
 ## Implementation details
 
